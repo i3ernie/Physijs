@@ -32,36 +32,11 @@ window.Physijs = (function() {
 	Physijs.scripts = {};
 
 	Eventable = function() {
-		this._eventListeners = {};
+		THREE.EventDispatcher.call(this);
 	};
-	Eventable.prototype.addEventListener = function( event_name, callback ) {
-		if ( !this._eventListeners.hasOwnProperty( event_name ) ) {
-			this._eventListeners[event_name] = [];
-		}
-		this._eventListeners[event_name].push( callback );
-	};
-	Eventable.prototype.removeEventListener = function( event_name, callback ) {
-		var index;
-
-		if ( !this._eventListeners.hasOwnProperty( event_name ) ) return false;
-
-		if ( (index = this._eventListeners[event_name].indexOf( callback )) >= 0 ) {
-			this._eventListeners[event_name].splice( index, 1 );
-			return true;
-		}
-
-		return false;
-	};
-	Eventable.prototype.dispatchEvent = function( event_name ) {
-		var i,
-			parameters = Array.prototype.splice.call( arguments, 1 );
-
-		if ( this._eventListeners.hasOwnProperty( event_name ) ) {
-			for ( i = 0; i < this._eventListeners[event_name].length; i++ ) {
-				this._eventListeners[event_name][i].apply( this, parameters );
-			}
-		}
-	};
+	Eventable.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype ), {
+		constructor : Eventable
+	});
 	Eventable.make = function( obj ) {
 		obj.prototype.addEventListener = Eventable.prototype.addEventListener;
 		obj.prototype.removeEventListener = Eventable.prototype.removeEventListener;
