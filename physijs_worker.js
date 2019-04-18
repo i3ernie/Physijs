@@ -1,14 +1,14 @@
 'use strict';
+// enum
+const MESSAGE_TYPES = {
+            WORLDREPORT: 0,
+            COLLISIONREPORT: 1,
+            VEHICLEREPORT: 2,
+            CONSTRAINTREPORT: 3
+};
 var
-	transferableMessage = self.webkitPostMessage || self.postMessage,
-
-	// enum
-	MESSAGE_TYPES = {
-		WORLDREPORT: 0,
-		COLLISIONREPORT: 1,
-		VEHICLEREPORT: 2,
-		CONSTRAINTREPORT: 3
-	},
+    AMMO,
+    transferableMessage = self.webkitPostMessage || self.postMessage,
 
 	// temp variables
 	_object,
@@ -100,7 +100,7 @@ createShape = function( description ) {
 				_vec3_1.setX(description.normal.x);
 				_vec3_1.setY(description.normal.y);
 				_vec3_1.setZ(description.normal.z);
-				shape = new Ammo.btStaticPlaneShape(_vec3_1, 0 );
+				shape = new AMMO.btStaticPlaneShape(_vec3_1, 0 );
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -111,7 +111,7 @@ createShape = function( description ) {
 				_vec3_1.setX(description.width / 2);
 				_vec3_1.setY(description.height / 2);
 				_vec3_1.setZ(description.depth / 2);
-				shape = new Ammo.btBoxShape(_vec3_1);
+				shape = new AMMO.btBoxShape(_vec3_1);
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -119,7 +119,7 @@ createShape = function( description ) {
 		case 'sphere':
 			cache_key = 'sphere_' + description.radius;
 			if ( ( shape = getShapeFromCache( cache_key ) ) === null ) {
-				shape = new Ammo.btSphereShape( description.radius );
+				shape = new AMMO.btSphereShape( description.radius );
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -130,7 +130,7 @@ createShape = function( description ) {
 				_vec3_1.setX(description.width / 2);
 				_vec3_1.setY(description.height / 2);
 				_vec3_1.setZ(description.depth / 2);
-				shape = new Ammo.btCylinderShape(_vec3_1);
+				shape = new AMMO.btCylinderShape(_vec3_1);
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -139,7 +139,7 @@ createShape = function( description ) {
 			cache_key = 'capsule_' + description.radius + '_' + description.height;
 			if ( ( shape = getShapeFromCache( cache_key ) ) === null ) {
 				// In Bullet, capsule height excludes the end spheres
-				shape = new Ammo.btCapsuleShape( description.radius, description.height - 2 * description.radius );
+				shape = new AMMO.btCapsuleShape( description.radius, description.height - 2 * description.radius );
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -147,13 +147,13 @@ createShape = function( description ) {
 		case 'cone':
 			cache_key = 'cone_' + description.radius + '_' + description.height;
 			if ( ( shape = getShapeFromCache( cache_key ) ) === null ) {
-				shape = new Ammo.btConeShape( description.radius, description.height );
+				shape = new AMMO.btConeShape( description.radius, description.height );
 				setShapeCache( cache_key, shape );
 			}
 			break;
 
 		case 'concave':
-			var i, triangle, triangle_mesh = new Ammo.btTriangleMesh;
+			var i, triangle, triangle_mesh = new AMMO.btTriangleMesh;
 			if (!description.triangles.length) return false
 
 			for ( i = 0; i < description.triangles.length; i++ ) {
@@ -179,7 +179,7 @@ createShape = function( description ) {
 				);
 			}
 
-			shape = new Ammo.btBvhTriangleMeshShape(
+			shape = new AMMO.btBvhTriangleMeshShape(
 				triangle_mesh,
 				true,
 				true
@@ -188,7 +188,7 @@ createShape = function( description ) {
 			break;
 
 		case 'convex':
-			var i, point, shape = new Ammo.btConvexHullShape;
+			var i, point, shape = new AMMO.btConvexHullShape;
 			for ( i = 0; i < description.points.length; i++ ) {
 				point = description.points[i];
 
@@ -204,13 +204,13 @@ createShape = function( description ) {
 
 		case 'heightfield':
 
-			var ptr = Ammo.allocate(4 * description.xpts * description.ypts, "float", Ammo.ALLOC_NORMAL);
+			var ptr = AMMO.allocate(4 * description.xpts * description.ypts, "float", AMMO.ALLOC_NORMAL);
 
 			for (var f = 0; f < description.points.length; f++) {
-				Ammo.setValue(ptr + f,  description.points[f]  , 'float');
+				AMMO.setValue(ptr + f,  description.points[f]  , 'float');
 			}
 
-			shape = new Ammo.btHeightfieldTerrainShape(
+			shape = new AMMO.btHeightfieldTerrainShape(
 					description.xpts,
 					description.ypts,
 					ptr,
@@ -239,14 +239,16 @@ createShape = function( description ) {
 	return shape;
 };
 
-public_functions.init = function( params ) {
-	importScripts( params.ammo );
+public_functions.init = function( params, done ) {
+    self.importScripts( params.ammo );
 
-	_transform = new Ammo.btTransform;
-	_vec3_1 = new Ammo.btVector3(0,0,0);
-	_vec3_2 = new Ammo.btVector3(0,0,0);
-	_vec3_3 = new Ammo.btVector3(0,0,0);
-	_quat = new Ammo.btQuaternion(0,0,0,0);
+    Ammo().then(function(Ammo) {
+        AMMO = Ammo;
+	_transform = new AMMO.btTransform;
+	_vec3_1 = new AMMO.btVector3(0,0,0);
+	_vec3_2 = new AMMO.btVector3(0,0,0);
+	_vec3_3 = new AMMO.btVector3(0,0,0);
+	_quat = new AMMO.btQuaternion(0,0,0,0);
 
 	REPORT_CHUNKSIZE = params.reportsize || 50;
 	if ( SUPPORT_TRANSFERABLE ) {
@@ -267,9 +269,9 @@ public_functions.init = function( params ) {
 	vehiclereport[0] = MESSAGE_TYPES.VEHICLEREPORT;
 	constraintreport[0] = MESSAGE_TYPES.CONSTRAINTREPORT;
 
-	var collisionConfiguration = new Ammo.btDefaultCollisionConfiguration,
-		dispatcher = new Ammo.btCollisionDispatcher( collisionConfiguration ),
-		solver = new Ammo.btSequentialImpulseConstraintSolver,
+	let collisionConfiguration = new AMMO.btDefaultCollisionConfiguration,
+		dispatcher = new AMMO.btCollisionDispatcher( collisionConfiguration ),
+		solver = new AMMO.btSequentialImpulseConstraintSolver,
 		broadphase;
 
 	if ( !params.broadphase ) params.broadphase = { type: 'dynamic' };
@@ -284,7 +286,7 @@ public_functions.init = function( params ) {
 			_vec3_2.setY(params.broadphase.aabbmax.y);
 			_vec3_2.setZ(params.broadphase.aabbmax.z);
 
-			broadphase = new Ammo.btAxisSweep3(
+			broadphase = new AMMO.btAxisSweep3(
 				_vec3_1,
 				_vec3_2
 			);
@@ -293,16 +295,18 @@ public_functions.init = function( params ) {
 
 		case 'dynamic':
 		default:
-			broadphase = new Ammo.btDbvtBroadphase;
+			broadphase = new AMMO.btDbvtBroadphase;
 			break;
 	}
 
-	world = new Ammo.btDiscreteDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration );
+	world = new AMMO.btDiscreteDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration );
 
 	fixedTimeStep = params.fixedTimeStep;
 	rateLimit = params.rateLimit;
 
 	transferableMessage({ cmd: 'worldReady' });
+        if ( typeof done === "function") done( null, params );
+    });
 };
 
 public_functions.registerMaterial = function( description ) {
@@ -333,13 +337,13 @@ shape = createShape( description );
 if (!shape) return
 // If there are children then this is a compound shape
 if ( description.children ) {
-	var compound_shape = new Ammo.btCompoundShape, _child;
+	var compound_shape = new AMMO.btCompoundShape, _child;
 	compound_shape.addChildShape( _transform, shape );
 
 	for ( i = 0; i < description.children.length; i++ ) {
 		_child = description.children[i];
 
-		var trans = new Ammo.btTransform;
+		var trans = new AMMO.btTransform;
 		trans.setIdentity();
 
 		_vec3_1.setX(_child.position_offset.x);
@@ -355,7 +359,7 @@ if ( description.children ) {
 
 		shape = createShape( description.children[i] );
 		compound_shape.addChildShape( trans, shape );
-		Ammo.destroy(trans);
+		AMMO.destroy(trans);
 	}
 
 	shape = compound_shape;
@@ -379,16 +383,16 @@ if ( description.children ) {
 	_quat.setW(description.rotation.w);
 	_transform.setRotation(_quat);
 
-	motionState = new Ammo.btDefaultMotionState( _transform ); // #TODO: btDefaultMotionState supports center of mass offset as second argument - implement
-	rbInfo = new Ammo.btRigidBodyConstructionInfo( description.mass, motionState, shape, _vec3_1 );
+	motionState = new AMMO.btDefaultMotionState( _transform ); // #TODO: btDefaultMotionState supports center of mass offset as second argument - implement
+	rbInfo = new AMMO.btRigidBodyConstructionInfo( description.mass, motionState, shape, _vec3_1 );
 
 	if ( description.materialId !== undefined ) {
 		rbInfo.set_m_friction( _materials[ description.materialId ].friction );
 		rbInfo.set_m_restitution( _materials[ description.materialId ].restitution );
 	}
 
-	body = new Ammo.btRigidBody( rbInfo );
-	Ammo.destroy(rbInfo);
+	body = new AMMO.btRigidBody( rbInfo );
+	AMMO.destroy(rbInfo);
 
 	if ( typeof description.collision_flags !== 'undefined' ) {
 		body.setCollisionFlags( description.collision_flags );
@@ -408,7 +412,7 @@ if ( description.children ) {
 };
 
 public_functions.addVehicle = function( description ) {
-	var vehicle_tuning = new Ammo.btVehicleTuning(),
+	var vehicle_tuning = new AMMO.btVehicleTuning(),
 		vehicle;
 
 	vehicle_tuning.set_m_suspensionStiffness( description.suspension_stiffness );
@@ -417,7 +421,7 @@ public_functions.addVehicle = function( description ) {
 	vehicle_tuning.set_m_maxSuspensionTravelCm( description.max_suspension_travel );
 	vehicle_tuning.set_m_maxSuspensionForce( description.max_suspension_force );
 
-	vehicle = new Ammo.btRaycastVehicle( vehicle_tuning, _objects[ description.rigidBody ], new Ammo.btDefaultVehicleRaycaster( world ) );
+	vehicle = new AMMO.btRaycastVehicle( vehicle_tuning, _objects[ description.rigidBody ], new AMMO.btDefaultVehicleRaycaster( world ) );
 	vehicle.tuning = vehicle_tuning;
 
 	_objects[ description.rigidBody ].setActivationState( 4 );
@@ -434,7 +438,7 @@ public_functions.addWheel = function( description ) {
 	if ( _vehicles[description.id] !== undefined ) {
 		var tuning = _vehicles[description.id].tuning;
 		if ( description.tuning !== undefined ) {
-			tuning = new Ammo.btVehicleTuning();
+			tuning = new AMMO.btVehicleTuning();
 			tuning.set_m_suspensionStiffness( description.tuning.suspension_stiffness );
 			tuning.set_m_suspensionCompression( description.tuning.suspension_compression );
 			tuning.set_m_suspensionDamping( description.tuning.suspension_damping );
@@ -493,10 +497,10 @@ public_functions.applyEngineForce = function( details ) {
 
 public_functions.removeObject = function( details ) {
 	world.removeRigidBody( _objects[details.id] );
-	Ammo.destroy(_objects[details.id]);
-	Ammo.destroy(_motion_states[details.id]);
-    if (_compound_shapes[details.id]) Ammo.destroy(_compound_shapes[details.id]);
-	if (_noncached_shapes[details.id]) Ammo.destroy(_noncached_shapes[details.id]);
+	AMMO.destroy(_objects[details.id]);
+	AMMO.destroy(_motion_states[details.id]);
+    if (_compound_shapes[details.id]) AMMO.destroy(_compound_shapes[details.id]);
+	if (_noncached_shapes[details.id]) AMMO.destroy(_noncached_shapes[details.id]);
 	var ptr = _objects[details.id].a != undefined ? _objects[details.id].a : _objects[details.id].ptr;
 	delete _objects_ammo[ptr];
 	delete _objects[details.id];
@@ -685,7 +689,7 @@ public_functions.addConstraint = function ( details ) {
 				_vec3_1.setY(details.positiona.y);
 				_vec3_1.setZ(details.positiona.z);
 
-				constraint = new Ammo.btPoint2PointConstraint(
+				constraint = new AMMO.btPoint2PointConstraint(
 					_objects[ details.objecta ],
 					_vec3_1
 				);
@@ -699,7 +703,7 @@ public_functions.addConstraint = function ( details ) {
 				_vec3_2.setY(details.positionb.y);
 				_vec3_2.setZ(details.positionb.z);
 
-				constraint = new Ammo.btPoint2PointConstraint(
+				constraint = new AMMO.btPoint2PointConstraint(
 					_objects[ details.objecta ],
 					_objects[ details.objectb ],
 					_vec3_1,
@@ -719,7 +723,7 @@ public_functions.addConstraint = function ( details ) {
 				_vec3_2.setY(details.axis.y);
 				_vec3_2.setZ(details.axis.z);
 
-				constraint = new Ammo.btHingeConstraint(
+				constraint = new AMMO.btHingeConstraint(
 					_objects[ details.objecta ],
 					_vec3_1,
 					_vec3_2
@@ -738,7 +742,7 @@ public_functions.addConstraint = function ( details ) {
 				_vec3_3.setY(details.axis.y);
 				_vec3_3.setZ(details.axis.z);
 
-				constraint = new Ammo.btHingeConstraint(
+				constraint = new AMMO.btHingeConstraint(
 					_objects[ details.objecta ],
 					_objects[ details.objectb ],
 					_vec3_1,
@@ -752,7 +756,7 @@ public_functions.addConstraint = function ( details ) {
 		case 'slider':
 			var transforma, transformb, rotation;
 
-			transforma = new Ammo.btTransform();
+			transforma = new AMMO.btTransform();
 
 			_vec3_1.setX(details.positiona.x);
 			_vec3_1.setY(details.positiona.y);
@@ -765,7 +769,7 @@ public_functions.addConstraint = function ( details ) {
 			transforma.setRotation( rotation );
 
 			if ( details.objectb ) {
-				transformb = new Ammo.btTransform();
+				transformb = new AMMO.btTransform();
 
 				_vec3_2.setX(details.positionb.x);
 				_vec3_2.setY(details.positionb.y);
@@ -777,7 +781,7 @@ public_functions.addConstraint = function ( details ) {
 				rotation.setEuler( details.axis.x, details.axis.y, details.axis.z );
 				transformb.setRotation( rotation );
 
-				constraint = new Ammo.btSliderConstraint(
+				constraint = new AMMO.btSliderConstraint(
 					_objects[ details.objecta ],
 					_objects[ details.objectb ],
 					transforma,
@@ -785,26 +789,26 @@ public_functions.addConstraint = function ( details ) {
 					true
 				);
 			} else {
-				constraint = new Ammo.btSliderConstraint(
+				constraint = new AMMO.btSliderConstraint(
 					_objects[ details.objecta ],
 					transforma,
 					true
 				);
 			}
 
-			Ammo.destroy(transforma);
+			AMMO.destroy(transforma);
 			if (transformb != undefined) {
-				Ammo.destroy(transformb);
+				AMMO.destroy(transformb);
 			}
 			break;
 
 		case 'conetwist':
 			var transforma, transformb;
 
-			transforma = new Ammo.btTransform();
+			transforma = new AMMO.btTransform();
 			transforma.setIdentity();
 
-			transformb = new Ammo.btTransform();
+			transformb = new AMMO.btTransform();
 			transformb.setIdentity();
 
 			_vec3_1.setX(details.positiona.x);
@@ -826,7 +830,7 @@ public_functions.addConstraint = function ( details ) {
 			rotation.setEulerZYX( -details.axisb.z, -details.axisb.y, -details.axisb.x );
 			transformb.setRotation( rotation );
 
-			constraint = new Ammo.btConeTwistConstraint(
+			constraint = new AMMO.btConeTwistConstraint(
 				_objects[ details.objecta ],
 				_objects[ details.objectb ],
 				transforma,
@@ -835,15 +839,15 @@ public_functions.addConstraint = function ( details ) {
 
 			constraint.setLimit( Math.PI, 0, Math.PI );
 
-			Ammo.destroy(transforma);
-			Ammo.destroy(transformb);
+			AMMO.destroy(transforma);
+			AMMO.destroy(transformb);
 
 			break;
 
 		case 'dof':
 			var transforma, transformb, rotation;
 
-			transforma = new Ammo.btTransform();
+			transforma = new AMMO.btTransform();
 			transforma.setIdentity();
 
 			_vec3_1.setX(details.positiona.x);
@@ -857,7 +861,7 @@ public_functions.addConstraint = function ( details ) {
 			transforma.setRotation( rotation );
 
 			if ( details.objectb ) {
-				transformb = new Ammo.btTransform();
+				transformb = new AMMO.btTransform();
 				transformb.setIdentity();
 
 				_vec3_2.setX(details.positionb.x);
@@ -870,21 +874,21 @@ public_functions.addConstraint = function ( details ) {
 				rotation.setEulerZYX( -details.axisb.z, -details.axisb.y, -details.axisb.x );
 				transformb.setRotation( rotation );
 
-				constraint = new Ammo.btGeneric6DofConstraint(
+				constraint = new AMMO.btGeneric6DofConstraint(
 					_objects[ details.objecta ],
 					_objects[ details.objectb ],
 					transforma,
 					transformb
 				);
 			} else {
-				constraint = new Ammo.btGeneric6DofConstraint(
+				constraint = new AMMO.btGeneric6DofConstraint(
 					_objects[ details.objecta ],
 					transforma
 				);
 			}
-			Ammo.destroy(transforma);
+			AMMO.destroy(transforma);
 			if (transformb != undefined) {
-				Ammo.destroy(transformb);
+				AMMO.destroy(transformb);
 			}
 			break;
 
