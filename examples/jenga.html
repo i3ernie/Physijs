@@ -4,19 +4,19 @@
 
 <head>
 	<title>Jenga - Physijs</title>
-	
+
 	<link rel="stylesheet" type="text/css" href="css/styles.css" />
-	
+
 	<script type="text/javascript" src="js/three.js"></script>
 	<script type="text/javascript" src="js/stats.js"></script>
-	<script type="text/javascript" src="../physi.js"></script>
-	
+	<script type="text/javascript" src="../src/physi.js"></script>
+
 	<script type="text/javascript">
-	
+
 	'use strict';
-	
-	Physijs.scripts.worker = '../physijs_worker.js';
-	Physijs.scripts.ammo = 'examples/js/ammo.js';
+
+	Physijs.scripts.worker = '../src/physijs_worker.js';
+	Physijs.scripts.ammo = '../examples/js/ammo.js';
 	
 	var initScene, initEventHandling, render, createTower, loader,
 		renderer, render_stats, physics_stats, scene, dir_light, am_light, camera,

@@ -1,10 +1,10 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(global = global || self, factory(global.THREE = {}));
+	(global = global || self, factory(global));
 }(this, function (exports) { 'use strict';
     
-exports.Physijs = (function() {
+
 	'use strict';
 
 	var SUPPORT_TRANSFERABLE,
@@ -1404,8 +1404,7 @@ exports.Physijs = (function() {
 		this.friction_slip = friction_slip !== undefined ? friction_slip : 10.5;
 		this.max_suspension_force = max_suspension_force !== undefined ? max_suspension_force : 6000;
 	};
-
+        console.log(exports);
+        exports.Physijs =  Physijs;
 	return Physijs;
-})();
-
 }));
