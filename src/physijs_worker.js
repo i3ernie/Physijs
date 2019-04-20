@@ -87,7 +87,45 @@ getShapeFromCache = function ( cache_key ) {
 
 setShapeCache = function ( cache_key, shape ) {
 	_object_shapes[ cache_key ] = shape;
-}
+};
+
+let _createHeightfieldShape = function( description ){
+    let heightScale = 1;
+    let ammoHeightData = AMMO._malloc(4 * description.xpts * description.ypts, "float", AMMO.ALLOC_NORMAL);
+
+    let p = 0;
+    let p2 = 0;
+    for ( let j = 0; j < description.ypts; j ++ ) {
+        for ( let i = 0; i < description.xpts; i ++ ) {
+                // write 32-bit float data to memory
+                AMMO.HEAPF32[ ammoHeightData + p2 >> 2 ] = description.points[ p ];
+                p ++;
+                // 4 bytes/float
+                p2 += 4;
+        }
+    }
+
+
+    let shape = new AMMO.btHeightfieldTerrainShape(
+                    description.xpts,
+                    description.ypts,
+                    ammoHeightData,
+                    heightScale,
+                    -description.absMaxHeight,
+                    description.absMaxHeight,
+                    2,
+                    0,
+                    false
+            );
+
+    _vec3_1.setX(description.xsize/(description.xpts - 1));
+    _vec3_1.setY(description.ysize/(description.ypts - 1));
+    _vec3_1.setZ(1);
+
+    shape.setLocalScaling( _vec3_1 );
+
+    return shape;
+};
 
 createShape = function( description ) {
 	var cache_key, shape;
@@ -153,10 +191,10 @@ createShape = function( description ) {
 			break;
 
 		case 'concave':
-			var i, triangle, triangle_mesh = new AMMO.btTriangleMesh;
-			if (!description.triangles.length) return false
+			var triangle, triangle_mesh = new AMMO.btTriangleMesh;
+			if (!description.triangles.length) return false;
 
-			for ( i = 0; i < description.triangles.length; i++ ) {
+			for ( let i = 0; i < description.triangles.length; i++ ) {
 				triangle = description.triangles[i];
 
 				_vec3_1.setX(triangle[0].x);
@@ -188,8 +226,8 @@ createShape = function( description ) {
 			break;
 
 		case 'convex':
-			var i, point, shape = new AMMO.btConvexHullShape;
-			for ( i = 0; i < description.points.length; i++ ) {
+			var point, shape = new AMMO.btConvexHullShape;
+			for ( let i = 0; i < description.points.length; i++ ) {
 				point = description.points[i];
 
 				_vec3_1.setX(point.x);
@@ -203,30 +241,7 @@ createShape = function( description ) {
 			break;
 
 		case 'heightfield':
-
-			var ptr = AMMO.allocate(4 * description.xpts * description.ypts, "float", AMMO.ALLOC_NORMAL);
-
-			for (var f = 0; f < description.points.length; f++) {
-				AMMO.setValue(ptr + f,  description.points[f]  , 'float');
-			}
-
-			shape = new AMMO.btHeightfieldTerrainShape(
-					description.xpts,
-					description.ypts,
-					ptr,
-					1,
-					-description.absMaxHeight,
-					description.absMaxHeight,
-					2,
-					0,
-					false
-				);
-
-			_vec3_1.setX(description.xsize/(description.xpts - 1));
-			_vec3_1.setY(description.ysize/(description.ypts - 1));
-			_vec3_1.setZ(1);
-
-			shape.setLocalScaling(_vec3_1);
+			shape = _createHeightfieldShape(description);
 			_noncached_shapes[description.id] = shape;
 			break;
 
@@ -242,7 +257,7 @@ createShape = function( description ) {
 public_functions.init = function( params, done ) {
     self.importScripts( params.ammo );
 
-    Ammo().then(function(Ammo) {
+    Ammo().then( function(Ammo) {
         AMMO = Ammo;
 	_transform = new AMMO.btTransform;
 	_vec3_1 = new AMMO.btVector3(0,0,0);

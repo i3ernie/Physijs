@@ -7,18 +7,21 @@
 	
 	<link rel="stylesheet" type="text/css" href="css/styles.css" />
 	
-	<script type="text/javascript" src="js/three.min.js"></script>
+	
 	<script type="text/javascript" src="js/stats.js"></script>
 	<script type="text/javascript" src="js/tween.js"></script>
 	<script type="text/javascript" src="js/simplex-noise.js"></script>
-	<script type="text/javascript" src="../physi.js"></script>
 	
-	<script type="text/javascript">
 	
+	<script type="module">
+            
+	import Physijs from '../src/physi.js';
+        import * as THREE from '../src/three.module.js';
+
 	'use strict';
 	
-	Physijs.scripts.worker = '../physijs_worker.js';
-	Physijs.scripts.ammo = 'examples/js/ammo.js';
+	Physijs.scripts.worker = '../src/physijs_worker.js';
+	Physijs.scripts.ammo = '../examples/js/ammo.js';
 	
 	var initScene, render, createShape, NoiseGen, loader,
 		renderer, render_stats, physics_stats, scene, light, ground, ground_geometry, ground_material, camera;
@@ -93,11 +96,11 @@
 		ground_material.map.repeat.set( 2.5, 2.5 );
 		
 		// Ground
-		NoiseGen = new SimplexNoise;
+		NoiseGen = new SimplexNoise();
 		
 		ground_geometry = new THREE.PlaneGeometry( 75, 75, 50, 50 );
-		for ( var i = 0; i < ground_geometry.vertices.length; i++ ) {
-			var vertex = ground_geometry.vertices[i];
+		for ( let i = 0; i < ground_geometry.vertices.length; i++ ) {
+			let vertex = ground_geometry.vertices[i];
 			vertex.z = NoiseGen.noise( vertex.x / 10, vertex.y / 10 ) * 2;
 		}
 		ground_geometry.computeFaceNormals();

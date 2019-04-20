@@ -1,0 +1,42 @@
+{
+  "name" : "PhysijsES6",
+  "version" : "0.1.0",
+  "license" : "MIT",
+  "description" : "threeVP core",
+  "author" : "i3ernie",
+  "repository" : "https://github.com/i3ernie/threeVP.js.git",
+  "contributors" : [],
+  "keywords" : [
+    "three.js",
+    "WebGL",
+    "Viewport"
+  ],
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    
+    "gulp": "latest",
+    "gulp-load-plugins": "latest",
+    "gulp-uglify": "^3.0.2",
+    
+    "lodash": "latest",
+    
+    "three": "latest"
+  },
+  "directories": {
+    "example": "examples",
+    "dist": "dist"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "physi.js",
+    "physijs_worker.js"
+  ],
+  "scripts": {
+    "build": "gulp build",
+    "init": "gulp init",
+    "update": "npm update"
+  }
+}
