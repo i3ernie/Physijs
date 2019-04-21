@@ -22,7 +22,7 @@
 	var initScene, initEventHandling, render, createTower, loader,
 		renderer, render_stats, physics_stats, scene, dir_light, am_light, camera,
 		table, blocks = [], table_material, block_material, intersect_plane,
-		selected_block = null, mouse_position = new THREE.Vector3, block_offset = new THREE.Vector3, _i, _v3 = new THREE.Vector3;
+		selected_block = null, body = null, mouse_position = new THREE.Vector3, block_offset = new THREE.Vector3, _i, _v3 = new THREE.Vector3;
 	
 	initScene = function() {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -50,15 +50,16 @@
 			function() {
 
 				if ( selected_block !== null ) {
+                                    body = selected_block.PhysicsBody || selected_block; 
 					
 					_v3.copy( mouse_position ).add( block_offset ).sub( selected_block.position ).multiplyScalar( 5 );
 					_v3.y = 0;
-					selected_block.setLinearVelocity( _v3 );
+					body.setLinearVelocity( _v3 );
 					
 					// Reactivate all of the blocks
 					_v3.set( 0, 0, 0 );
 					for ( _i = 0; _i < blocks.length; _i++ ) {
-						blocks[_i].applyCentralImpulse( _v3 );
+						blocks[_i].PhysicsBody.applyCentralImpulse( _v3 );
 					}
 				}
 
@@ -196,12 +197,13 @@
 
 			if ( intersections.length > 0 ) {
 				selected_block = intersections[0].object;
+                                body = selected_block.PhysicsBody || selected_block;
 				
 				_vector.set( 0, 0, 0 );
-				selected_block.setAngularFactor( _vector );
-				selected_block.setAngularVelocity( _vector );
-				selected_block.setLinearFactor( _vector );
-				selected_block.setLinearVelocity( _vector );
+				body.setAngularFactor( _vector );
+				body.setAngularVelocity( _vector );
+				body.setLinearFactor( _vector );
+				body.setLinearVelocity( _vector );
 
 				mouse_position.copy( intersections[0].point );
 				block_offset.subVectors( selected_block.position, mouse_position );
@@ -234,9 +236,10 @@
 		handleMouseUp = function( evt ) {
 			
 			if ( selected_block !== null ) {
+                            body = selected_block.PhysicsBody || selected_block;
 				_vector.set( 1, 1, 1 );
-				selected_block.setAngularFactor( _vector );
-				selected_block.setLinearFactor( _vector );
+				body.setAngularFactor( _vector );
+				body.setLinearFactor( _vector );
 				
 				selected_block = null;
 			}

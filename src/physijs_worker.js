@@ -892,8 +892,8 @@ public_functions.addConstraint = function ( details ) {
 				constraint = new AMMO.btGeneric6DofConstraint(
 					_objects[ details.objecta ],
 					_objects[ details.objectb ],
-					transforma,
-					transformb
+					transforma
+					,transformb
 				);
 			} else {
 				constraint = new AMMO.btGeneric6DofConstraint(

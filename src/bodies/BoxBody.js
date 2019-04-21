@@ -36,6 +36,7 @@ BoxBody.make = function( mesh, opt ) {
 let BoxMesh = function( geometry, material, mass ) {
 
     THREE.Mesh.call( this, geometry, material );    
+    //BoxBody.call(this, this, {mass :mass} );
     this.PhysicsBody = new BoxBody( this, {mass :mass} );
 
 };

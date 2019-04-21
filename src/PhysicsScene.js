@@ -113,6 +113,9 @@ PhysicsScene.scripts = {
             if ( ! _physijs ) { return; }
 
             object.world = this;
+            if ( object.PhysicsBody ) {
+                object.PhysicsBody.world = this;
+            }
 
             if ( object instanceof Vehicle ) {
 

@@ -40,11 +40,12 @@ CylinderBody.make = function( mesh, opt ){
 // Physijs.CylinderMesh
 let CylinderMesh = function( geometry, material, mass ) {
     
-    THREE.Mesh.call( this, geometry, material );    
-    this.PhysicsBody = new CylinderBody( this, {mass :mass} );
+    THREE.Mesh.call( this, geometry, material );   
+    CylinderBody.call(this, this, {mass :mass} );
+    //this.PhysicsBody = new CylinderBody( this, {mass :mass} );
     
 };
-CylinderMesh.prototype = Object.create( THREE.Mesh.prototype );
+CylinderMesh.prototype = Object.create( Mesh.prototype );
 CylinderMesh.prototype.constructor = CylinderMesh;
 
 export { CylinderMesh, CylinderBody };

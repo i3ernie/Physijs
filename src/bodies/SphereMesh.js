@@ -32,9 +32,10 @@ SphereBody.make = function( mesh, opt ) {
 // Physijs.SphereMesh
 let SphereMesh = function( geometry, material, mass ) {
     THREE.Mesh.call( this, geometry, material );    
-    this.PhysicsBody = new SphereBody( this, {mass :mass} );
+    SphereBody.call(this, this, {mass :mass} );
+    //this.PhysicsBody = new SphereBody( this, {mass :mass} );
 };
-SphereMesh.prototype = Object.create( THREE.Mesh.prototype );
+SphereMesh.prototype = Object.create( Mesh.prototype );
 SphereMesh.prototype.constructor = SphereMesh;
 
 export { SphereMesh, SphereBody };
