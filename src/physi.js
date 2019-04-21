@@ -4,9 +4,9 @@ import { Mesh } from './PhysicsMesh.js';
 import { PlaneMesh } from './bodies/PlaneBody.js';
 import { BoxMesh, BoxBody } from './bodies/BoxBody.js';
 import { ConvexMesh } from './bodies/ConvexBody.js';
-import { HeightfieldMesh } from './bodies/HeightfieldMesh.js';
+import { HeightfieldMesh, HeightfieldBody } from './bodies/HeightfieldMesh.js';
 import { ConcaveMesh } from './bodies/ConcaveBody.js';
-import { SphereMesh } from './bodies/SphereMesh.js';
+import { SphereMesh, SphereBody } from './bodies/SphereMesh.js';
 import { CylinderMesh } from './bodies/CylinderMesh.js';
 import { CapsuleMesh } from './bodies/CapsuleMesh.js';
 import { ConeMesh } from './bodies/ConeMesh.js'; 
@@ -18,7 +18,7 @@ import { ConeTwistConstraint } from './constraints/ConeTwistConstraint.js';
 import { DOFConstraint } from './constraints/DOFConstraint.js';
 
 import { Scene, PhysicsScene } from './PhysicsScene.js';
-import { Vehicle } from './PhysicsVehicle.js';
+import { Vehicle, VehicleTuning } from './PhysicsVehicle.js';
 
 import {convertWorldPositionToObject, getObjectId} from './utils.js';
 
@@ -86,8 +86,11 @@ import {convertWorldPositionToObject, getObjectId} from './utils.js';
 
     Physijs.PlaneMesh = PlaneMesh;
     Physijs.HeightfieldMesh = HeightfieldMesh;
+    Physijs.HeightfieldBody = HeightfieldBody;
     Physijs.BoxMesh = BoxMesh;
+    Physijs.BoxBody = BoxBody;
     Physijs.SphereMesh = SphereMesh;
+    Physijs.SphereBody = SphereBody;
     Physijs.CylinderMesh = CylinderMesh;
     Physijs.CapsuleMesh = CapsuleMesh;
     Physijs.ConeMesh = ConeMesh;
@@ -95,11 +98,10 @@ import {convertWorldPositionToObject, getObjectId} from './utils.js';
     Physijs.ConvexMesh = ConvexMesh;
 
     Physijs.Vehicle = Vehicle;
+    Physijs.VehicleTuning = VehicleTuning;
     
     Physijs.makeBody = function( mesh, opt ){ 
         if ( !mesh || typeof mesh !== "object" || !mesh.geometry ) return;
-
-        let scope = this;
         
         const defaults = {
             density : 1,
@@ -112,6 +114,9 @@ import {convertWorldPositionToObject, getObjectId} from './utils.js';
         {
             case "BoxGeometry":
                 Physijs.BoxBody.make( mesh, options );
+                break;
+            case "SphereGeometry":
+                Physijs.SphereBody.make( mesh, options );
                 break;
             default :
                 //ToDo

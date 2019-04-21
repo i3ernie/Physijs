@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-import { convertWorldPositionToObject } from '../utils.js';
+import { convertWorldPositionToObject, getObjectId } from '../utils.js';
 
 let DOFConstraint = function( objecta, objectb, position ) {
         if ( position === undefined ) {
@@ -15,12 +15,12 @@ let DOFConstraint = function( objecta, objectb, position ) {
         this.appliedImpulse = 0;
         this.id = getObjectId();
         this.scene = objecta.parent;
-        this.objecta = objecta._physijs.id;
+        this.objecta = objecta.PhysicsBody ? objecta.PhysicsBody._physijs.id : objecta._physijs.id;
         this.positiona = convertWorldPositionToObject( position, objecta ).clone();
         this.axisa = { x: objecta.rotation.x, y: objecta.rotation.y, z: objecta.rotation.z };
 
         if ( objectb ) {
-            this.objectb = objectb._physijs.id;
+            this.objectb = objectb.PhysicsBody? objectb.PhysicsBody._physijs.id : objectb._physijs.id;
             this.positionb = convertWorldPositionToObject( position, objectb ).clone();
             this.axisb = { x: objectb.rotation.x, y: objectb.rotation.y, z: objectb.rotation.z };
         }

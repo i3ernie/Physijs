@@ -7,17 +7,18 @@
 	
 	<link rel="stylesheet" type="text/css" href="css/styles.css" />
 	
-	<script type="text/javascript" src="js/three.min.js"></script>
 	<script type="text/javascript" src="js/stats.js"></script>
 	<script type="text/javascript" src="js/simplex-noise.js"></script>
-	<script type="text/javascript" src="../physi.js"></script>
 	
-	<script type="text/javascript">
+	<script type="module">
 	
 	'use strict';
+        import Physijs from '../src/physi.js';
+        import * as THREE from '../src/three.module.js';
+        import LegacyJSONLoader from './js/JSONLoader.js';
 	
-	Physijs.scripts.worker = '../physijs_worker.js';
-	Physijs.scripts.ammo = 'examples/js/ammo.js';
+	Physijs.scripts.worker = '../src/physijs_worker.js';
+	Physijs.scripts.ammo = '../examples/js/ammo.js';
 	
 	var initScene, render,
 		ground_material, box_material, 
@@ -158,13 +159,13 @@
 		}
 
 
-		var json_loader = new THREE.JSONLoader();
+		var json_loader = new LegacyJSONLoader();
 
-		json_loader.load( "models/mustang.js", function( car, car_materials ) {
-			json_loader.load( "models/mustang_wheel.js", function( wheel, wheel_materials ) {
-				var mesh = new Physijs.BoxMesh(
-					car,
-					new THREE.MeshFaceMaterial( car_materials )
+		json_loader.load( "models/mustang.json", function( car, car_materials ) {
+			json_loader.load( "models/mustang_wheel.json", function( wheel, wheel_materials ) {
+				let mesh = new Physijs.BoxMesh(
+                                    car,
+                                    new THREE.MeshFaceMaterial( car_materials )
 				);
 				mesh.position.y = 2;
 				mesh.castShadow = mesh.receiveShadow = true;
@@ -179,23 +180,23 @@
 				));
 				scene.add( vehicle );
 
-				var wheel_material = new THREE.MeshFaceMaterial( wheel_materials );
+				let wheel_material = new THREE.MeshFaceMaterial( wheel_materials );
 
-				for ( var i = 0; i < 4; i++ ) {
-					vehicle.addWheel(
-						wheel,
-						wheel_material,
-						new THREE.Vector3(
-								i % 2 === 0 ? -1.6 : 1.6,
-								-1,
-								i < 2 ? 3.3 : -3.2
-						),
-						new THREE.Vector3( 0, -1, 0 ),
-						new THREE.Vector3( -1, 0, 0 ),
-						0.5,
-						0.7,
-						i < 2 ? false : true
-					);
+				for ( let i = 0; i < 4; i++ ) {
+                                    vehicle.addWheel(
+                                            wheel,
+                                            wheel_material,
+                                            new THREE.Vector3(
+                                                            i % 2 === 0 ? -1.6 : 1.6,
+                                                            -1,
+                                                            i < 2 ? 3.3 : -3.2
+                                            ),
+                                            new THREE.Vector3( 0, -1, 0 ),
+                                            new THREE.Vector3( -1, 0, 0 ),
+                                            0.5,
+                                            0.7,
+                                            i < 2 ? false : true
+                                    );
 				}
 
 				input = {

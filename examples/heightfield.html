@@ -72,15 +72,14 @@
 		light.position.set( 20, 40, -15 );
 		light.target.position.copy( scene.position );
 		light.castShadow = true;
-		light.shadowCameraLeft = -60;
-		light.shadowCameraTop = -60;
-		light.shadowCameraRight = 60;
-		light.shadowCameraBottom = 60;
-		light.shadowCameraNear = 20;
-		light.shadowCameraFar = 200;
-		light.shadowBias = -.0001
-		light.shadowMapWidth = light.shadowMapHeight = 2048;
-		light.shadowDarkness = .7;
+		light.shadow.camera.left = -60;
+		light.shadow.camera.top = -60;
+		light.shadow.camera.right = 60;
+		light.shadow.camera.bottom = 60;
+		light.shadow.camera.near = 20;
+		light.shadow.camera.far = 200;
+		light.shadow.bias = -.0001
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048;
 		scene.add( light );
 
 		// Loader
@@ -108,12 +107,13 @@
 		
 		// If your plane is not square as far as face count then the HeightfieldMesh
 		// takes two more arguments at the end: # of x faces and # of y faces that were passed to THREE.PlaneMaterial
-		ground = new Physijs.HeightfieldMesh(
-			ground_geometry,
-			ground_material,
-			0, // mass
-			50,
-			50
+		ground = Physijs.HeightfieldBody.make(
+                    new THREE.Mesh( ground_geometry, ground_material ),
+                    {
+                        mass : 0, // mass
+			xdiv : 50,
+			ydiv : 50
+                    }
 		);
 		ground.rotation.x = Math.PI / -2;
 		ground.receiveShadow = true;

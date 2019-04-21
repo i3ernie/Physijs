@@ -28,6 +28,7 @@ BoxBody.prototype = Object.assign ( Object.create( PhysicsBody.prototype ), {
 
 BoxBody.make = function( mesh, opt ) {
     mesh.PhysicsBody = new BoxBody( mesh, opt );
+    return mesh;
 };
 
 
@@ -35,10 +36,10 @@ BoxBody.make = function( mesh, opt ) {
 let BoxMesh = function( geometry, material, mass ) {
 
     THREE.Mesh.call( this, geometry, material );    
-    BoxBody.call( this, this, {mass :mass} );
+    this.PhysicsBody = new BoxBody( this, {mass :mass} );
 
 };
-BoxMesh.prototype = Object.assign ( Object.create( Mesh.prototype ), {
+BoxMesh.prototype = Object.assign ( Object.create( THREE.Mesh.prototype ), {
     constructor : BoxMesh
 });
 

@@ -167,7 +167,7 @@
 			distance = mouse_position.distanceTo( box.position ),
 			effect = mouse_position.clone().sub( box.position ).normalize().multiplyScalar( strength / distance ).negate(),
 			offset = mouse_position.clone().sub( box.position );
-			box.applyImpulse( effect, offset );
+			box.PhysicsBody.applyImpulse( effect, offset );
 		}
 	};
 	

@@ -8,36 +8,50 @@ import * as THREE from '../three.module.js';
 import { Mesh } from '../PhysicsMesh.js';
 import { PhysicsBody } from '../PhysicsBody.js';
 
-// Physijs.ConvexMesh
-let ConvexMesh = function( geometry, material, mass ) {
+let ConvexBody = function( mesh, opt ) {
         let points = [];
+        let mass = opt? opt.mass : null;
 
-        Mesh.call( this, geometry, material, mass );
+        PhysicsBody.call( this, mesh, mass );
 
-        if ( !geometry.boundingBox ) {
-                geometry.computeBoundingBox();
+        if ( !mesh.geometry.boundingBox ) {
+                mesh.geometry.computeBoundingBox();
         }
 
-        for ( let i = 0; i < geometry.vertices.length; i++ ) {
+        for ( let i = 0; i < mesh.geometry.vertices.length; i++ ) {
                 points.push({
-                        x: geometry.vertices[i].x,
-                        y: geometry.vertices[i].y,
-                        z: geometry.vertices[i].z
+                        x: mesh.geometry.vertices[i].x,
+                        y: mesh.geometry.vertices[i].y,
+                        z: mesh.geometry.vertices[i].z
                 });
         }
 
 
-        let width = geometry.boundingBox.max.x - geometry.boundingBox.min.x;
-        let height = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-        let depth = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
+        let width = mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x;
+        let height = mesh.geometry.boundingBox.max.y - mesh.geometry.boundingBox.min.y;
+        let depth = mesh.geometry.boundingBox.max.z - mesh.geometry.boundingBox.min.z;
 
         this._physijs.type = 'convex';
         this._physijs.points = points;
         this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
 };
-ConvexMesh.prototype = Object.assign( Object.create( Mesh.prototype ), {
+
+ConvexBody.prototype = Object.assign ( Object.create( PhysicsBody.prototype ), {
+    constructor : ConvexBody
+});
+
+
+// Physijs.ConvexMesh
+let ConvexMesh = function( geometry, material, mass ) {
+    
+    THREE.Mesh.call( this, geometry, material );    
+    this.PhysicsBody = new ConvexBody( this, {mass :mass} );    
+
+};
+
+ConvexMesh.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
     constructor : ConvexMesh
 });
 
 
-export { ConvexMesh };
+export { ConvexMesh, ConvexBody };

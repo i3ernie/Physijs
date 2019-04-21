@@ -4,7 +4,11 @@
  * and open the template in the editor.
  */
 
-let _temp_matrix4_1, _temp_vector3_1, _temp_vector3_2;
+import * as THREE from './three.module.js';
+
+let _temp_matrix4_1 = new THREE.Matrix4(); 
+let _temp_vector3_1 = new THREE.Vector3(); 
+let _temp_vector3_2 = new THREE.Vector3();
 
 // returns a unique ID for a Physijs mesh object
 let getObjectId = (function() {

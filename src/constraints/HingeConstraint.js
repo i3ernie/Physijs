@@ -17,13 +17,13 @@ let HingeConstraint = function( objecta, objectb, position, axis ) {
     this.appliedImpulse = 0;
     this.id = getObjectId();
     this.scene = objecta.parent;
-    this.objecta = objecta._physijs.id;
+    this.objecta = objecta.PhysicsBody ? objecta.PhysicsBody._physijs.id : objecta._physijs.id;;
     this.positiona = convertWorldPositionToObject( position, objecta ).clone();
     this.position = position.clone();
     this.axis = axis;
 
     if ( objectb ) {
-            this.objectb = objectb._physijs.id;
+            this.objectb = objectb.PhysicsBody ? objectb.PhysicsBody._physijs.id : objectb._physijs.id;
             this.positionb = convertWorldPositionToObject( position, objectb ).clone();
     }
 };

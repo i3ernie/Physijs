@@ -7,10 +7,13 @@ import * as THREE from '../three.module.js';
 import { Mesh } from '../PhysicsMesh.js';
 import { PhysicsBody } from '../PhysicsBody.js';
 
-// Physijs.ConeMesh
-let ConeMesh = function( geometry, material, mass ) {
+// Physijs.ConeBody
+let ConeBody = function( mesh, opt ) {
+    
+    let mass = opt.mass;
+    let geometry = mesh.geometry;
 
-    Mesh.call( this, geometry, material, mass );
+    PhysicsBody.call( this, mesh, mass );
 
     if ( !geometry.boundingBox ) {
             geometry.computeBoundingBox();
@@ -24,7 +27,24 @@ let ConeMesh = function( geometry, material, mass ) {
     this._physijs.height = height;
     this._physijs.mass = (typeof mass === 'undefined') ? width * height : mass;
 };
-ConeMesh.prototype = Object.create( Mesh.prototype );
+
+ConeBody.prototype = Object.assign ( Object.create( PhysicsBody.prototype ), {
+    constructor : ConeBody
+});
+
+ConeBody.make = function( mesh, opt ) {
+    mesh.PhysicsBody = new ConeBody( mesh, opt );
+    return mesh;
+};
+
+
+// Physijs.ConeMesh
+let ConeMesh = function( geometry, material, mass ) {
+
+    THREE.Mesh.call( this, geometry, material );    
+    this.PhysicsBody = new ConeBody( this, {mass :mass} );
+};
+ConeMesh.prototype = Object.create( THREE.Mesh.prototype );
 ConeMesh.prototype.constructor = ConeMesh;
 
-export { ConeMesh };
+export { ConeMesh, ConeBody };
