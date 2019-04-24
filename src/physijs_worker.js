@@ -261,6 +261,10 @@ public_functions.init = function( params, done ) {
     
     public_functions.addVehicle = addVehicle;
     public_functions.addWheel = addWheel;
+    public_functions.removeVehicle = removeVehicle;
+    public_functions.setSteering = setSteering;
+    public_functions.setBrake = setBrake;
+    public_functions.applyEngineForce = applyEngineForce;
     
 
     Ammo().then( function(Ammo) {
@@ -351,20 +355,20 @@ public_functions.setGravity = function( description ) {
 
 public_functions.addObject = function( description ) {
 
-	var i,
-	localInertia, shape, motionState, rbInfo, body;
+    var shape, motionState, rbInfo, body;
 
-shape = createShape( description );
-if (!shape) return
-// If there are children then this is a compound shape
-if ( description.children ) {
+    shape = createShape( description );
+    if (!shape) return
+    // If there are children then this is a compound shape
+    if ( description.children ) {
+        
 	var compound_shape = new AMMO.btCompoundShape, _child;
 	compound_shape.addChildShape( _transform, shape );
 
-	for ( i = 0; i < description.children.length; i++ ) {
+	for ( let i = 0; i < description.children.length; i++ ) {
 		_child = description.children[i];
 
-		var trans = new AMMO.btTransform;
+		let trans = new AMMO.btTransform;
 		trans.setIdentity();
 
 		_vec3_1.setX(_child.position_offset.x);
@@ -384,75 +388,55 @@ if ( description.children ) {
 	}
 
 	shape = compound_shape;
-    _compound_shapes[ description.id ] = shape;
-	}
-	_vec3_1.setX(0);
-	_vec3_1.setY(0);
-	_vec3_1.setZ(0);
-	shape.calculateLocalInertia( description.mass, _vec3_1 );
+        _compound_shapes[ description.id ] = shape;
+    }
+    
+    _vec3_1.setX(0);
+    _vec3_1.setY(0);
+    _vec3_1.setZ(0);
+    shape.calculateLocalInertia( description.mass, _vec3_1 );
 
-	_transform.setIdentity();
+    _transform.setIdentity();
 
-	_vec3_2.setX(description.position.x);
-	_vec3_2.setY(description.position.y);
-	_vec3_2.setZ(description.position.z);
-	_transform.setOrigin(_vec3_2);
+    _vec3_2.setX(description.position.x);
+    _vec3_2.setY(description.position.y);
+    _vec3_2.setZ(description.position.z);
+    _transform.setOrigin(_vec3_2);
 
-	_quat.setX(description.rotation.x);
-	_quat.setY(description.rotation.y);
-	_quat.setZ(description.rotation.z);
-	_quat.setW(description.rotation.w);
-	_transform.setRotation(_quat);
+    _quat.setX(description.rotation.x);
+    _quat.setY(description.rotation.y);
+    _quat.setZ(description.rotation.z);
+    _quat.setW(description.rotation.w);
+    _transform.setRotation(_quat);
 
-	motionState = new AMMO.btDefaultMotionState( _transform ); // #TODO: btDefaultMotionState supports center of mass offset as second argument - implement
-	rbInfo = new AMMO.btRigidBodyConstructionInfo( description.mass, motionState, shape, _vec3_1 );
+    motionState = new AMMO.btDefaultMotionState( _transform ); // #TODO: btDefaultMotionState supports center of mass offset as second argument - implement
+    rbInfo = new AMMO.btRigidBodyConstructionInfo( description.mass, motionState, shape, _vec3_1 );
 
-	if ( description.materialId !== undefined ) {
-		rbInfo.set_m_friction( _materials[ description.materialId ].friction );
-		rbInfo.set_m_restitution( _materials[ description.materialId ].restitution );
-	}
+    if ( description.materialId !== undefined ) {
+        rbInfo.set_m_friction( _materials[ description.materialId ].friction );
+        rbInfo.set_m_restitution( _materials[ description.materialId ].restitution );
+    }
 
-	body = new AMMO.btRigidBody( rbInfo );
-	AMMO.destroy(rbInfo);
+    body = new AMMO.btRigidBody( rbInfo );
+    AMMO.destroy(rbInfo);
 
-	if ( typeof description.collision_flags !== 'undefined' ) {
-		body.setCollisionFlags( description.collision_flags );
-	}
+    if ( typeof description.collision_flags !== 'undefined' ) {
+            body.setCollisionFlags( description.collision_flags );
+    }
 
-	world.addRigidBody( body );
+    world.addRigidBody( body );
 
-	body.id = description.id;
-	_objects[ body.id ] = body;
-	_motion_states[ body.id ] = motionState;
+    body.id = description.id;
+    _objects[ body.id ] = body;
+    _motion_states[ body.id ] = motionState;
 
-	var ptr = body.a != undefined ? body.a : body.ptr;
-	_objects_ammo[ptr] = body.id;
-	_num_objects++;
+    let ptr = body.a != undefined ? body.a : body.ptr;
+    _objects_ammo[ptr] = body.id;
+    _num_objects++;
 
-	transferableMessage({ cmd: 'objectReady', params: body.id });
+    transferableMessage({ cmd: 'objectReady', params: body.id });
 };
 
-
-public_functions.removeVehicle = function( description ) {
-	delete _vehicles[ description.id ];
-};
-
-
-public_functions.setSteering = function( details ) {
-	if ( _vehicles[details.id] !== undefined ) {
-		_vehicles[details.id].setSteeringValue( details.steering, details.wheel );
-	}
-};
-public_functions.setBrake = function( details ) {
-	if ( _vehicles[details.id] !== undefined ) {
-		_vehicles[details.id].setBrake( details.brake, details.wheel );
-	}
-};
-public_functions.applyEngineForce = function( details ) {
-	if ( _vehicles[details.id] !== undefined ) {
-		_vehicles[details.id].applyEngineForce( details.force, details.wheel );
-	}
-};
 
 public_functions.removeObject = function( details ) {
 	world.removeRigidBody( _objects[details.id] );

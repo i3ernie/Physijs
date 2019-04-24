@@ -69,3 +69,22 @@ addWheel = function( description ) {
 	}
 };
 
+removeVehicle = function( description ) {
+	delete _vehicles[ description.id ];
+};
+setSteering = function( details ) {
+	if ( _vehicles[details.id] !== undefined ) {
+		_vehicles[details.id].setSteeringValue( details.steering, details.wheel );
+	}
+};
+setBrake = function( details ) {
+	if ( _vehicles[details.id] !== undefined ) {
+		_vehicles[details.id].setBrake( details.brake, details.wheel );
+	}
+};
+applyEngineForce = function( details ) {
+	if ( _vehicles[details.id] !== undefined ) {
+		_vehicles[details.id].applyEngineForce( details.force, details.wheel );
+	}
+};
+
