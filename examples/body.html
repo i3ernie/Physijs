@@ -43,14 +43,12 @@
 		
 		scene = new Physijs.Scene;
 		scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
-		scene.addEventListener(
-			'update',
-			function() {
+		
+		scene.addEventListener(	'update', function() {
 				applyForce();
 				scene.simulate( undefined, 1 );
 				physics_stats.update();
-			}
-		);
+		});
 		
 		camera = new THREE.PerspectiveCamera(
 			35,
