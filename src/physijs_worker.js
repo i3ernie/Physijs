@@ -36,6 +36,7 @@ var
 	_vec3_2,
 	_vec3_3,
 	_quat,
+        
 	// private cache
 	_objects = {},
 	_vehicles = {},
@@ -43,7 +44,7 @@ var
 	_objects_ammo = {},
 	_num_objects = 0,
 	_num_wheels = 0,
-	_num_constraints = 0,
+	
 	_object_shapes = {},
 
 	// The following objects are to track objects that ammo.js doesn't clean
@@ -253,16 +254,16 @@ createShape = function( description ) {
 	return shape;
 };
 
-self._constraints = {};
 
 public_functions.init = function( params, done ) {
-    self.importScripts( params.ammo );
-    self.importScripts( "./worker_vehicle.js" );
-    self.importScripts( "./constraints/worker.js" );
-    
+    self.importScripts( params.ammo );    
 
-    Ammo().then( function(Ammo) {
+    Ammo().then( function( Ammo ) {
         AMMO = Ammo;
+        
+        self.importScripts( "./worker_vehicle.js" );
+        self.importScripts( "./constraints/worker.js" );
+    
 	_transform = new AMMO.btTransform;
 	_vec3_1 = new AMMO.btVector3(0,0,0);
 	_vec3_2 = new AMMO.btVector3(0,0,0);
@@ -352,7 +353,7 @@ public_functions.addObject = function( description ) {
     var shape, motionState, rbInfo, body;
 
     shape = createShape( description );
-    if (!shape) return
+    if (!shape) return;
     // If there are children then this is a compound shape
     if ( description.children ) {
         
@@ -424,7 +425,7 @@ public_functions.addObject = function( description ) {
     _objects[ body.id ] = body;
     _motion_states[ body.id ] = motionState;
 
-    let ptr = body.a != undefined ? body.a : body.ptr;
+    let ptr = body.a !== undefined ? body.a : body.ptr;
     _objects_ammo[ptr] = body.id;
     _num_objects++;
 
@@ -438,7 +439,7 @@ public_functions.removeObject = function( details ) {
 	AMMO.destroy(_motion_states[details.id]);
     if (_compound_shapes[details.id]) AMMO.destroy(_compound_shapes[details.id]);
 	if (_noncached_shapes[details.id]) AMMO.destroy(_noncached_shapes[details.id]);
-	var ptr = _objects[details.id].a != undefined ? _objects[details.id].a : _objects[details.id].ptr;
+	var ptr = _objects[details.id].a !== undefined ? _objects[details.id].a : _objects[details.id].ptr;
 	delete _objects_ammo[ptr];
 	delete _objects[details.id];
 	delete _motion_states[details.id];
@@ -616,13 +617,6 @@ public_functions.setCcdSweptSphereRadius = function ( details ) {
 
 
 
-public_functions.constraint_setBreakingImpulseThreshold = function( details ) {
-	var constraint = _constraints[ details.id ];
-	if ( constraint !== undefind ) {
-		constraint.setBreakingImpulseThreshold( details.threshold );
-	}
-};
-
 public_functions.simulate = function simulate( params ) {
 	if ( world ) {
 		params = params || {};
@@ -659,107 +653,7 @@ public_functions.simulate = function simulate( params ) {
 
 
 // Constraint functions
-public_functions.hinge_setLimits = function( params ) {
-	_constraints[ params.constraint ].setLimit( params.low, params.high, 0, params.bias_factor, params.relaxation_factor );
-};
-public_functions.hinge_enableAngularMotor = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.enableAngularMotor( true, params.velocity, params.acceleration );
-	constraint.getRigidBodyA().activate();
-	if ( constraint.getRigidBodyB() ) {
-		constraint.getRigidBodyB().activate();
-	}
-};
-public_functions.hinge_disableMotor = function( params ) {
-	_constraints[ params.constraint ].enableMotor( false );
-	if ( constraint.getRigidBodyB() ) {
-		constraint.getRigidBodyB().activate();
-	}
-};
 
-public_functions.slider_setLimits = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.setLowerLinLimit( params.lin_lower || 0 );
-	constraint.setUpperLinLimit( params.lin_upper || 0 );
-
-	constraint.setLowerAngLimit( params.ang_lower || 0 );
-	constraint.setUpperAngLimit( params.ang_upper || 0 );
-};
-public_functions.slider_setRestitution = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.setSoftnessLimLin( params.linear || 0 );
-	constraint.setSoftnessLimAng( params.angular || 0 );
-};
-public_functions.slider_enableLinearMotor = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.setTargetLinMotorVelocity( params.velocity );
-	constraint.setMaxLinMotorForce( params.acceleration );
-	constraint.setPoweredLinMotor( true );
-	constraint.getRigidBodyA().activate();
-	if ( constraint.getRigidBodyB() ) {
-		constraint.getRigidBodyB().activate();
-	}
-};
-public_functions.slider_disableLinearMotor = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.setPoweredLinMotor( false );
-	if ( constraint.getRigidBodyB() ) {
-		constraint.getRigidBodyB().activate();
-	}
-};
-public_functions.slider_enableAngularMotor = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.setTargetAngMotorVelocity( params.velocity );
-	constraint.setMaxAngMotorForce( params.acceleration );
-	constraint.setPoweredAngMotor( true );
-	constraint.getRigidBodyA().activate();
-	if ( constraint.getRigidBodyB() ) {
-		constraint.getRigidBodyB().activate();
-	}
-};
-public_functions.slider_disableAngularMotor = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.setPoweredAngMotor( false );
-	constraint.getRigidBodyA().activate();
-	if ( constraint.getRigidBodyB() ) {
-		constraint.getRigidBodyB().activate();
-	}
-};
-
-public_functions.conetwist_setLimit = function( params ) {
-	_constraints[ params.constraint ].setLimit( params.z, params.y, params.x ); // ZYX order
-};
-public_functions.conetwist_enableMotor = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.enableMotor( true );
-	constraint.getRigidBodyA().activate();
-	constraint.getRigidBodyB().activate();
-};
-public_functions.conetwist_setMaxMotorImpulse = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.setMaxMotorImpulse( params.max_impulse );
-	constraint.getRigidBodyA().activate();
-	constraint.getRigidBodyB().activate();
-};
-public_functions.conetwist_setMotorTarget = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-
-	_quat.setX(params.x);
-	_quat.setY(params.y);
-	_quat.setZ(params.z);
-	_quat.setW(params.w);
-
-	constraint.setMotorTarget(_quat);
-
-	constraint.getRigidBodyA().activate();
-	constraint.getRigidBodyB().activate();
-};
-public_functions.conetwist_disableMotor = function( params ) {
-	var constraint = _constraints[ params.constraint ];
-	constraint.enableMotor( false );
-	constraint.getRigidBodyA().activate();
-	constraint.getRigidBodyB().activate();
-};
 
 
 reportWorld = function() {
