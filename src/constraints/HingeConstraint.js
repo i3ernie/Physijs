@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-import { convertWorldPositionToObject } from '../utils.js';
+import { convertWorldPositionToObject, getObjectId } from '../utils.js';
 
 let HingeConstraint = function( objecta, objectb, position, axis ) {
     if ( axis === undefined ) {

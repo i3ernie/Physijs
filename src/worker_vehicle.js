@@ -3,10 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-(function(public_functions){
+(function( self ){
+    
+    let public_functions = self.public_functions;
+    let Ammo = self.Ammo;
+    
+    let _vec3_1 = new Ammo.btVector3(0,0,0);
+    let _vec3_2 = new Ammo.btVector3(0,0,0);
+    let _vec3_3 = new Ammo.btVector3(0,0,0);
     
     let addVehicle = function( description ) {
-	let vehicle_tuning = new AMMO.btVehicleTuning();
+	let vehicle_tuning = new Ammo.btVehicleTuning();
 	let vehicle;
 
 	vehicle_tuning.set_m_suspensionStiffness( description.suspension_stiffness );
@@ -15,7 +22,7 @@
 	vehicle_tuning.set_m_maxSuspensionTravelCm( description.max_suspension_travel );
 	vehicle_tuning.set_m_maxSuspensionForce( description.max_suspension_force );
 
-	vehicle = new AMMO.btRaycastVehicle( vehicle_tuning, _objects[ description.rigidBody ], new AMMO.btDefaultVehicleRaycaster( world ) );
+	vehicle = new Ammo.btRaycastVehicle( vehicle_tuning, _objects[ description.rigidBody ], new Ammo.btDefaultVehicleRaycaster( world ) );
 	vehicle.tuning = vehicle_tuning;
 
 	_objects[ description.rigidBody ].setActivationState( 4 );
@@ -29,7 +36,7 @@
             if ( _vehicles[description.id] !== undefined ) {
                     var tuning = _vehicles[description.id].tuning;
                     if ( description.tuning !== undefined ) {
-                            tuning = new AMMO.btVehicleTuning();
+                            tuning = new Ammo.btVehicleTuning();
                             tuning.set_m_suspensionStiffness( description.tuning.suspension_stiffness );
                             tuning.set_m_suspensionCompression( description.tuning.suspension_compression );
                             tuning.set_m_suspensionDamping( description.tuning.suspension_damping );
@@ -95,7 +102,7 @@
     public_functions.setSteering = setSteering;
     public_functions.setBrake = setBrake;
     public_functions.applyEngineForce = applyEngineForce;
-})(public_functions);
+})( self );
 
 
 

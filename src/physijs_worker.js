@@ -6,9 +6,7 @@ const MESSAGE_TYPES = {
             VEHICLEREPORT: 2,
             CONSTRAINTREPORT: 3
 };
-var
-    AMMO,
-    transferableMessage = self.webkitPostMessage || self.postMessage,
+var transferableMessage = self.webkitPostMessage || self.postMessage,
 
 	// temp variables
 	_object,
@@ -32,9 +30,7 @@ var
 	last_simulation_duration = 0,
 	world,
 	transform,
-	_vec3_1,
-	_vec3_2,
-	_vec3_3,
+	_vec3_1, _vec3_2, _vec3_3,
 	_quat,
         
 	// private cache
@@ -91,14 +87,14 @@ setShapeCache = function ( cache_key, shape ) {
 
 let _createHeightfieldShape = function( description ){
     let heightScale = 1;
-    let ammoHeightData = AMMO._malloc(4 * description.xpts * description.ypts, "float", AMMO.ALLOC_NORMAL);
+    let ammoHeightData = Ammo._malloc(4 * description.xpts * description.ypts, "float", Ammo.ALLOC_NORMAL);
 
     let p = 0;
     let p2 = 0;
     for ( let j = 0; j < description.ypts; j ++ ) {
         for ( let i = 0; i < description.xpts; i ++ ) {
                 // write 32-bit float data to memory
-                AMMO.HEAPF32[ ammoHeightData + p2 >> 2 ] = description.points[ p ];
+                Ammo.HEAPF32[ ammoHeightData + p2 >> 2 ] = description.points[ p ];
                 p ++;
                 // 4 bytes/float
                 p2 += 4;
@@ -106,7 +102,7 @@ let _createHeightfieldShape = function( description ){
     }
 
 
-    let shape = new AMMO.btHeightfieldTerrainShape(
+    let shape = new Ammo.btHeightfieldTerrainShape(
             description.xpts,
             description.ypts,
             ammoHeightData,
@@ -138,7 +134,7 @@ createShape = function( description ) {
 				_vec3_1.setX(description.normal.x);
 				_vec3_1.setY(description.normal.y);
 				_vec3_1.setZ(description.normal.z);
-				shape = new AMMO.btStaticPlaneShape(_vec3_1, 0 );
+				shape = new Ammo.btStaticPlaneShape(_vec3_1, 0 );
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -149,7 +145,7 @@ createShape = function( description ) {
 				_vec3_1.setX(description.width / 2);
 				_vec3_1.setY(description.height / 2);
 				_vec3_1.setZ(description.depth / 2);
-				shape = new AMMO.btBoxShape(_vec3_1);
+				shape = new Ammo.btBoxShape(_vec3_1);
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -157,7 +153,7 @@ createShape = function( description ) {
 		case 'sphere':
 			cache_key = 'sphere_' + description.radius;
 			if ( ( shape = getShapeFromCache( cache_key ) ) === null ) {
-				shape = new AMMO.btSphereShape( description.radius );
+				shape = new Ammo.btSphereShape( description.radius );
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -168,7 +164,7 @@ createShape = function( description ) {
 				_vec3_1.setX(description.width / 2);
 				_vec3_1.setY(description.height / 2);
 				_vec3_1.setZ(description.depth / 2);
-				shape = new AMMO.btCylinderShape(_vec3_1);
+				shape = new Ammo.btCylinderShape(_vec3_1);
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -177,7 +173,7 @@ createShape = function( description ) {
 			cache_key = 'capsule_' + description.radius + '_' + description.height;
 			if ( ( shape = getShapeFromCache( cache_key ) ) === null ) {
 				// In Bullet, capsule height excludes the end spheres
-				shape = new AMMO.btCapsuleShape( description.radius, description.height - 2 * description.radius );
+				shape = new Ammo.btCapsuleShape( description.radius, description.height - 2 * description.radius );
 				setShapeCache( cache_key, shape );
 			}
 			break;
@@ -185,13 +181,13 @@ createShape = function( description ) {
 		case 'cone':
 			cache_key = 'cone_' + description.radius + '_' + description.height;
 			if ( ( shape = getShapeFromCache( cache_key ) ) === null ) {
-				shape = new AMMO.btConeShape( description.radius, description.height );
+				shape = new Ammo.btConeShape( description.radius, description.height );
 				setShapeCache( cache_key, shape );
 			}
 			break;
 
 		case 'concave':
-			var triangle, triangle_mesh = new AMMO.btTriangleMesh;
+			var triangle, triangle_mesh = new Ammo.btTriangleMesh;
 			if (!description.triangles.length) return false;
 
 			for ( let i = 0; i < description.triangles.length; i++ ) {
@@ -217,7 +213,7 @@ createShape = function( description ) {
 				);
 			}
 
-			shape = new AMMO.btBvhTriangleMeshShape(
+			shape = new Ammo.btBvhTriangleMeshShape(
 				triangle_mesh,
 				true,
 				true
@@ -226,7 +222,7 @@ createShape = function( description ) {
 			break;
 
 		case 'convex':
-			var point, shape = new AMMO.btConvexHullShape;
+			var point, shape = new Ammo.btConvexHullShape;
 			for ( let i = 0; i < description.points.length; i++ ) {
 				point = description.points[i];
 
@@ -256,19 +252,39 @@ createShape = function( description ) {
 
 
 public_functions.init = function( params, done ) {
-    self.importScripts( params.ammo );    
+	self.importScripts( params.ammo );    
+	
+	if (typeof Ammo !== "function"){
+		let AMMO = Ammo;
+		Ammo = function(){ return {
+			then : function( fnc ){ fnc( AMMO ); }
+		}; };
+	}
+
+	let extensions = [ 
+		"./worker_vehicle.js", 
+		"./constraints/worker_constraints.js", 
+		"./constraints/worker_hingeConstraints.js",
+		"./constraints/worker_conetwistConstraints.js",
+		"./constraints/worker_DOFConstraints.js",
+		"./constraints/worker_pointConstraints.js",
+		"./constraints/worker_sliderConstraints.js"
+	];
 
     Ammo().then( function( Ammo ) {
-        AMMO = Ammo;
-        
-        self.importScripts( "./worker_vehicle.js" );
-        self.importScripts( "./constraints/worker.js" );
+		self.AMMO = self.Ammo = Ammo;
+		
+		let index =0;
+		for ( index in extensions ){
+			self.importScripts( extensions[index] );
+		}
+		
     
-	_transform = new AMMO.btTransform;
-	_vec3_1 = new AMMO.btVector3(0,0,0);
-	_vec3_2 = new AMMO.btVector3(0,0,0);
-	_vec3_3 = new AMMO.btVector3(0,0,0);
-	_quat = new AMMO.btQuaternion(0,0,0,0);
+	_transform = new self.Ammo.btTransform;
+	_vec3_1 = new Ammo.btVector3(0,0,0);
+	_vec3_2 = new Ammo.btVector3(0,0,0);
+	_vec3_3 = new Ammo.btVector3(0,0,0);
+	_quat = new Ammo.btQuaternion(0,0,0,0);
 
 	REPORT_CHUNKSIZE = params.reportsize || 50;
 	if ( SUPPORT_TRANSFERABLE ) {
@@ -289,9 +305,9 @@ public_functions.init = function( params, done ) {
 	vehiclereport[0] = MESSAGE_TYPES.VEHICLEREPORT;
 	constraintreport[0] = MESSAGE_TYPES.CONSTRAINTREPORT;
 
-	let collisionConfiguration = new AMMO.btDefaultCollisionConfiguration,
-		dispatcher = new AMMO.btCollisionDispatcher( collisionConfiguration ),
-		solver = new AMMO.btSequentialImpulseConstraintSolver,
+	let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration,
+		dispatcher = new Ammo.btCollisionDispatcher( collisionConfiguration ),
+		solver = new Ammo.btSequentialImpulseConstraintSolver,
 		broadphase;
 
 	if ( !params.broadphase ) params.broadphase = { type: 'dynamic' };
@@ -306,7 +322,7 @@ public_functions.init = function( params, done ) {
 			_vec3_2.setY(params.broadphase.aabbmax.y);
 			_vec3_2.setZ(params.broadphase.aabbmax.z);
 
-			broadphase = new AMMO.btAxisSweep3(
+			broadphase = new Ammo.btAxisSweep3(
 				_vec3_1,
 				_vec3_2
 			);
@@ -315,11 +331,11 @@ public_functions.init = function( params, done ) {
 
 		case 'dynamic':
 		default:
-			broadphase = new AMMO.btDbvtBroadphase;
+			broadphase = new Ammo.btDbvtBroadphase;
 			break;
 	}
 
-	world = new AMMO.btDiscreteDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration );
+	world = new Ammo.btDiscreteDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration );
 
 	fixedTimeStep = params.fixedTimeStep;
 	rateLimit = params.rateLimit;
@@ -357,13 +373,13 @@ public_functions.addObject = function( description ) {
     // If there are children then this is a compound shape
     if ( description.children ) {
         
-	var compound_shape = new AMMO.btCompoundShape, _child;
+	var compound_shape = new Ammo.btCompoundShape, _child;
 	compound_shape.addChildShape( _transform, shape );
 
 	for ( let i = 0; i < description.children.length; i++ ) {
 		_child = description.children[i];
 
-		let trans = new AMMO.btTransform;
+		let trans = new Ammo.btTransform;
 		trans.setIdentity();
 
 		_vec3_1.setX(_child.position_offset.x);
@@ -379,7 +395,7 @@ public_functions.addObject = function( description ) {
 
 		shape = createShape( description.children[i] );
 		compound_shape.addChildShape( trans, shape );
-		AMMO.destroy(trans);
+		Ammo.destroy(trans);
 	}
 
 	shape = compound_shape;
@@ -404,16 +420,17 @@ public_functions.addObject = function( description ) {
     _quat.setW(description.rotation.w);
     _transform.setRotation(_quat);
 
-    motionState = new AMMO.btDefaultMotionState( _transform ); // #TODO: btDefaultMotionState supports center of mass offset as second argument - implement
-    rbInfo = new AMMO.btRigidBodyConstructionInfo( description.mass, motionState, shape, _vec3_1 );
+    motionState = new Ammo.btDefaultMotionState( _transform ); // #TODO: btDefaultMotionState supports center of mass offset as second argument - implement
+    rbInfo = new Ammo.btRigidBodyConstructionInfo( description.mass, motionState, shape, _vec3_1 );
 
     if ( description.materialId !== undefined ) {
         rbInfo.set_m_friction( _materials[ description.materialId ].friction );
         rbInfo.set_m_restitution( _materials[ description.materialId ].restitution );
     }
 
-    body = new AMMO.btRigidBody( rbInfo );
-    AMMO.destroy(rbInfo);
+	body = new Ammo.btRigidBody( rbInfo );
+	//setActivationState( 4 )
+    Ammo.destroy(rbInfo);
 
     if ( typeof description.collision_flags !== 'undefined' ) {
             body.setCollisionFlags( description.collision_flags );
@@ -435,10 +452,10 @@ public_functions.addObject = function( description ) {
 
 public_functions.removeObject = function( details ) {
 	world.removeRigidBody( _objects[details.id] );
-	AMMO.destroy(_objects[details.id]);
-	AMMO.destroy(_motion_states[details.id]);
-    if (_compound_shapes[details.id]) AMMO.destroy(_compound_shapes[details.id]);
-	if (_noncached_shapes[details.id]) AMMO.destroy(_noncached_shapes[details.id]);
+	Ammo.destroy(_objects[details.id]);
+	Ammo.destroy(_motion_states[details.id]);
+    if (_compound_shapes[details.id]) Ammo.destroy(_compound_shapes[details.id]);
+	if (_noncached_shapes[details.id]) Ammo.destroy(_noncached_shapes[details.id]);
 	var ptr = _objects[details.id].a !== undefined ? _objects[details.id].a : _objects[details.id].ptr;
 	delete _objects_ammo[ptr];
 	delete _objects[details.id];

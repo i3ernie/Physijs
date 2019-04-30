@@ -65,7 +65,7 @@ const addObjectChildren = function( parent, object ) {
         }
 };
 
-let PhysicsScene = function( scene, params ){
+let PhysicsScene = function( scene, params ){ 
     let scope = this;
     
     this._worker = new Worker( PhysicsScene.scripts.worker );
@@ -317,6 +317,7 @@ PhysicsScene.scripts = {
 		for ( id1 in this._objects ) {
 			if ( !this._objects.hasOwnProperty( id1 ) ) continue;
 			object = this._objects[ id1 ];
+			let PhysicsBody = object.PhysicsBody? object.PhysicsBody : object;
                         _physijs = object.PhysicsBody? object.PhysicsBody._physijs : object._physijs;
 
 			// If object touches anything, ...
@@ -335,15 +336,15 @@ PhysicsScene.scripts = {
 					object2 = this._objects[ id2 ];
 
 					if ( object2 ) {
-                                            let _physijs2 = object2.PhysicsBody? object2.PhysicsBody._physijs : object2._physijs;
+					    let _physijs2 = object2.PhysicsBody? object2.PhysicsBody._physijs : object2._physijs;
+					    let PhysicsBody2 = object2.PhysicsBody? object2.PhysicsBody : object2;
 						// If object was not already touching object2, notify object
 						if ( _physijs.touches.indexOf( id2 ) === -1 ) {
 							_physijs.touches.push( id2 );
-
-							_temp_vector3_1.subVectors( object.getLinearVelocity(), object2.getLinearVelocity() );
+							_temp_vector3_1.subVectors( PhysicsBody.getLinearVelocity(), PhysicsBody2.getLinearVelocity() );
 							_temp1 = _temp_vector3_1.clone();
 
-							_temp_vector3_1.subVectors( object.getAngularVelocity(), object2.getAngularVelocity() );
+							_temp_vector3_1.subVectors( PhysicsBody.getAngularVelocity(), PhysicsBody2.getAngularVelocity() );
 							_temp2 = _temp_vector3_1.clone();
 
 							var normal_offset = normal_offsets[ _physijs.id + '-' + _physijs2.id ];
