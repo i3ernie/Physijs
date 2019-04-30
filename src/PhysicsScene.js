@@ -424,6 +424,10 @@ PhysicsScene.scripts = {
             this.execute( 'onSimulationResume', { } );
 	}
     });
+    PhysicsScene.make = function( Scene ){
+        let pScene = new PhysicsScene( Scene, params );
+        return pScene;
+    };
 
     // Physijs.Scene
     let Scene = function( params ) {
